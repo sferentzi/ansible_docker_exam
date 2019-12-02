@@ -1,0 +1,100 @@
+- name: Web
+  hosts: web
+  become: true
+  vars:
+    packages: [httpd,libselinux-python,libsemanage-python]
+    nodejs_ip: 192.168.56.32
+
+  tasks:
+  - name: Installing Apache and other packages
+    yum:
+      name: '{{packages}}'
+      state: latest
+
+  - name: Set firewall 
+    firewalld:
+      port: 80/tcp
+      permanent: yes
+      state: enabled
+
+  - name: Restart firewalld
+    service:
+      name: firewalld
+      state: restarted
+      enabled: yes
+
+  - name: Set httpd_can_network_connect flag. Required for proxy
+    seboolean:
+      name: httpd_can_network_connect
+      state: yes
+      persistent: yes
+
+  - name: deploy a template file with a loop
+    template:
+      src: templates/template_nodejs.j2
+      dest: /etc/httpd/conf.d/nodejs.conf
+
+  - name: Start service httpd, if not started
+    service:
+      name: httpd
+      state: restarted
+      enabled: yes
+
+- name: Implement NodeJs with dependencies
+  hosts: tasks
+  tags:
+    - node
+  become: true
+
+  tasks:
+  - name: "Add repository"
+    shell: curl -sL https://rpm.nodesource.com/setup_10.x | sudo -E bash -
+
+  - name: Install required packages
+    package:
+      name:
+        - nodejs
+        - gcc-c++
+        - make
+        - git
+      state: latest
+
+  - name: Install required npm package(s) 
+    npm:
+      name: supervisor
+      global: yes
+
+  - name: Implement nodejs (index.js) code from git
+    git:
+      repo: https://github.com/sferentzi/prox.git
+      dest: /nodejs/
+      force: yes
+
+  - name: Copy prepared unit file for nodejsapp service
+    copy:
+      src: ./nodejsapp.service
+      dest: /usr/lib/systemd/system/nodejsapp.service
+      owner: root
+      group: root
+      mode: '0644'
+
+  - name: Adjust firewall
+    firewalld:
+      port: 8080/tcp
+      permanent: yes
+      state: enabled
+
+  - name: Restart firewalld
+    service:
+      name: firewalld
+      state: restarted
+      enabled: yes
+
+  - name: just force systemd to reread configs (2.4 and above)
+    systemd:
+      daemon_reload: yes
+
+  - name: Start nodejsapp if not running
+    systemd:
+      state: started
+      name: nodejsapp
