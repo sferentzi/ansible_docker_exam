@@ -98,3 +98,40 @@
     systemd:
       state: started
       name: nodejsapp
+
+######### Install Docker
+- name: Install Docker
+  hosts: nodejs
+  tags:
+    - docker
+  become: true
+
+  tasks:
+  - name: "Step 1."
+    shell: yum install yum-utils device-mapper-persistent-data lvm2 -y
+
+  - name: "Step 2."
+    shell: yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+
+  #- name: "Step install pip 1."
+  #  shell: yum -y update
+
+  - name: "Step install pip 1."
+    shell: curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py"
+
+  - name: "Step install pip 2."
+    shell: python get-pip.py
+  
+  - name: "Step x.b."
+    shell: pip install docker-py
+
+#  - name: "Step 3."
+#    shell: yum install docker-ce -y
+
+  - name: "Step 3."
+    yum:
+      name: docker-ce
+      state: latest
+
+  - name: "Step 4."
+    shell: systemctl enable --now docker
