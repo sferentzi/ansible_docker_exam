@@ -134,3 +134,6 @@ ssh 129.168.56.32 -l exam
 ~~~
 ansible-playbook -i run_hosts run.yaml
 ~~~
+
+## Afterword
+Thanks for reading this Reamde. The system is not idempotent 100%, but works. 
