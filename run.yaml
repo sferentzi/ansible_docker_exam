@@ -140,3 +140,11 @@
     docker_image:
       name: node:7
       state: present
+
+  - name: Copy prepared Dockerfile
+    copy:
+      src: ./Dockerfile
+      dest: /home/exam/Dockerfile
+      owner: root
+      group: root
+      mode: '0644'
