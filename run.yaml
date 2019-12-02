@@ -143,8 +143,8 @@
 
   - name: Copy prepared index.js file
     copy:
-      src: ./index.js
-      dest: /home/exam/index.js
+      src: ./index_d.js
+      dest: /home/exam/index_d.js
       owner: root
       group: root
       mode: '0644'
