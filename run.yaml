@@ -104,36 +104,56 @@
   tags:
     - docker
   become: true
+  vars:
+    packages_docker: [yum-utils,device-mapper-persistent-data,lvm2,docker-ce,python-pip]
 
   tasks:
-  - name: "Step 1."
-    shell: yum install yum-utils device-mapper-persistent-data lvm2 -y
+  - name: Installing Packages for Docker
+    yum:
+      name: '{{packages_docker}}'
+      state: latest  
 
-  - name: "Step 2."
-    shell: yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+  #tasks:
+  #- name: "Step 1."
+  #  shell: yum install yum-utils device-mapper-persistent-data lvm2 -y
+
+  - name: Add Docker repo
+    get_url:
+      url: https://download.docker.com/linux/centos/docker-ce.repo
+      dest: /etc/yum.repos.d/docker-ce.repo
+  
+  #- name: "Step 2."
+  #  shell: yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
 
   #- name: "Step install pip 1."
   #  shell: yum -y update
 
-  - name: "Step install pip 1."
-    shell: curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py"
+##
+  #- name: "Step install pip 1."
+  #  shell: curl "https://bootstrap.pypa.io/get-pip.py" -o "get-pip.py"
 
-  - name: "Step install pip 2."
-    shell: python get-pip.py
+  #- name: "Step install pip 2."
+  #  shell: python get-pip.py
   
-  - name: "Step x.b."
-    shell: pip install docker-py
+  #- name: "Step x.b."
+  #  shell: pip install docker-py
+##
 
 #  - name: "Step 3."
 #    shell: yum install docker-ce -y
 
-  - name: "Step 3."
+  - name: "Install docker"
     yum:
       name: docker-ce
       state: latest
 
-  - name: "Step 4."
-    shell: systemctl enable --now docker
+  - name: Enable Docker
+    systemd:
+      state: started
+      name: docker
+
+  #- name: "Step 4."
+  #  shell: systemctl enable --now docker
 
   - name: pull an image
     docker_image:
@@ -156,15 +176,38 @@
       group: root
       mode: '0644'
 
-  - name: Build the image
-    command: sudo docker build -t exam-image .
+  - name: Build an image from Dockerfile
+    docker_image:
+      name: exam-image
+      path: /
+      tag: latest
+      source: build
+      state: present
+      timeout: 300
+
+  #- name: Build the image
+  #  command: sudo docker build -t exam-image .
 
   - name: Start a container
     docker_container:
       name: exam_container
       image: exam-image
       published_ports: 8070:8080
-      state: started    
+      state: started
+
+  - name: Adjust firewall
+    firewalld:
+      port: 8070/tcp
+      permanent: yes
+      state: enabled
+    notify: restart firewalld
+
+  handlers:
+  - name: restart firewalld
+    service:
+      name: firewalld
+      state: restarted
+      enabled: yes   
 
 #  - name: start the container
 #    command: sudo docker run -p 8070:8080 -t exam-image
