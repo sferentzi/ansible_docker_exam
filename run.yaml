@@ -135,3 +135,8 @@
 
   - name: "Step 4."
     shell: systemctl enable --now docker
+
+  - name: pull an image
+    docker_image:
+      name: node:7
+      state: present
