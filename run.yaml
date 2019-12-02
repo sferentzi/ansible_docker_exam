@@ -160,5 +160,12 @@
   - name: build the image
     command: sudo docker build -t exam-image .
 
-  - name: build the image
-    command: sudo docker run -p 8070:8080 -t exam-image
+- name: Start a container
+  docker_container:
+    name: exam_container
+    image: exam-image
+    published_ports: 8070:8080
+    state: started    
+
+#  - name: start the container
+#    command: sudo docker run -p 8070:8080 -t exam-image
