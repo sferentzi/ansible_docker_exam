@@ -1,6 +1,8 @@
 - name: Web
   hosts: web
   become: true
+  tags:
+    - apache
   vars:
     packages: [httpd,libselinux-python,libsemanage-python]
 
@@ -15,12 +17,14 @@
       port: 80/tcp
       permanent: yes
       state: enabled
+    notify: restart firewalld
 
-  - name: Restart firewalld
-    service:
-      name: firewalld
-      state: restarted
-      enabled: yes
+  #- name: Restart firewalld
+  #  service:
+  #    name: firewalld
+  #    state: restarted
+  #    enabled: yes
+  #  notify: restart firewalld
 
   - name: Set httpd_can_network_connect flag. Required for proxy
     seboolean:
@@ -32,12 +36,27 @@
     template:
       src: templates/template_nodejs.j2
       dest: /etc/httpd/conf.d/nodejs.conf
+    notify: restart httpd
 
   - name: Start service httpd, if not started
     service:
       name: httpd
+      state: started
+      enabled: yes
+
+  handlers:
+  - name: restart firewalld
+    service:
+      name: firewalld
       state: restarted
       enabled: yes
+
+  - name: restart httpd
+    service:
+      name: httpd
+      state: restarted
+
+  
 
 - name: Implement NodeJs with dependencies
   hosts: nodejs
@@ -151,6 +170,7 @@
     systemd:
       state: started
       name: docker
+      enabled: yes
 
   #- name: "Step 4."
   #  shell: systemctl enable --now docker
