@@ -148,3 +148,6 @@
       owner: root
       group: root
       mode: '0644'
+
+  - name: build the image
+    command: sudo docker build -t exam-image .
