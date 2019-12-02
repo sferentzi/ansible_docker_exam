@@ -3,7 +3,6 @@
   become: true
   vars:
     packages: [httpd,libselinux-python,libsemanage-python]
-    #nodejs_ip: '{{ hostvars['ansible-nodejs']['ansible_host'] }}'
 
   tasks:
   - name: Installing Apache and other packages

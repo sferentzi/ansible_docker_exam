@@ -1,6 +1,26 @@
 # project *ansible docker exam*
 
-![Sys Overview](ansible_docker_exam_overview.png "Sys Overview")
+## Project Overview
+
+![Project Overview](ansible_docker_exam_overview.png "Project Overview")
+
+## Goal of the project
+- To set up an Ansible controller.  
+- Set up twoo hosts automatically from the Ansible hosts, using a playbook.
+- After running, the Verification shown above should pass.
+
+## Content of the Git repository *ansible_docker_exam*
+- templates / template_nodejs.j2 
+- ansible_docker_exam_overview.png
+- Dockerfile
+- index_d.js
+- index.js
+- init_hosts
+- init_users.yaml
+- nodejsapp.service
+- Readme.md
+- run_hosts
+- run_yaml
 
 ## For setting up the system, do the steps below !
 
