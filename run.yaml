@@ -141,7 +141,7 @@
       name: node:7
       state: present
 
-  - name: Copy prepared Dockerfile
+  - name: Copy prepared index.js file
     copy:
       src: ./index.js
       dest: /home/exam/index.js
@@ -159,3 +159,6 @@
 
   - name: build the image
     command: sudo docker build -t exam-image .
+
+  - name: build the image
+    command: sudo docker run -p 8070:8080 -t exam-image
