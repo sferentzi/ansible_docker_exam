@@ -1,0 +1,10 @@
+[web]
+192.168.56.31
+
+[nodejs]
+192.168.56.32
+
+[all:vars]
+ansible_connection=ssh
+ansible_user=root
+ansible_pass=000000
