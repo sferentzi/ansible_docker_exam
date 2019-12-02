@@ -143,6 +143,14 @@
 
   - name: Copy prepared Dockerfile
     copy:
+      src: ./index.js
+      dest: /home/exam/index.js
+      owner: root
+      group: root
+      mode: '0644'
+
+  - name: Copy prepared Dockerfile
+    copy:
       src: ./Dockerfile
       dest: /home/exam/Dockerfile
       owner: root
